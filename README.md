@@ -4,7 +4,7 @@ Mapa de conhecimento interativo baseado nas notas do Obsidian. Grafo force-direc
 
 ---
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 - [Python 3.10+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/)
@@ -15,7 +15,7 @@ Mapa de conhecimento interativo baseado nas notas do Obsidian. Grafo force-direc
 
 ---
 
-## 🚀 Configuração Inicial (apenas na primeira vez)
+## Configuração Inicial (apenas na primeira vez)
 
 ### 1. Criar e ativar o ambiente virtual
 
@@ -65,7 +65,7 @@ WikiVaultExample/
 
 ---
 
-## ▶️ Iniciando o Desenvolvimento
+## Iniciando o Desenvolvimento
 
 Abra **dois terminais** na raiz do projeto.
 
@@ -86,7 +86,7 @@ Acesse em: **http://127.0.0.1:5000**
 
 ---
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 grapy-wiki/
@@ -131,7 +131,7 @@ grapy-wiki/
 
 ---
 
-## 🌐 Rotas Disponíveis
+## Rotas Disponíveis
 
 | Rota | Método | Descrição |
 |---|---|---|
@@ -143,7 +143,7 @@ grapy-wiki/
 
 ---
 
-## 🔗 Webhook de Sincronização (produção)
+## Webhook de Sincronização (produção)
 
 O grapy-wiki suporta sincronização automática via push no GitHub.
 
@@ -170,7 +170,7 @@ A cada `git push`, o servidor executa `git pull` automaticamente no vault.
 
 ---
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 O projeto segue **DDD (Domain-Driven Design)** com separação em camadas:
 
