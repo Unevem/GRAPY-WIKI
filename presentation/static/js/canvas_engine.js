@@ -63,6 +63,23 @@
   let logicalWidth  = 0;
   let logicalHeight = 0;
 
+  // ── Controle de Câmera (Pan/Zoom) ─────────────────────────────────
+  let scale = 1;
+  let offsetX = 0;
+  let offsetY = 0;
+  let isDraggingBg = false;
+  let lastMouseX = 0;
+  let lastMouseY = 0;
+
+  function screenToWorld(sx, sy) {
+    const cx = logicalWidth / 2;
+    const cy = logicalHeight / 2;
+    return {
+      x: (sx - cx) / scale + cx - offsetX,
+      y: (sy - cy) / scale + cy - offsetY
+    };
+  }
+
   // ─────────────────────────────────────────────────────────────────
   //  CARREGAMENTO DINÂMICO
   // ─────────────────────────────────────────────────────────────────
@@ -130,11 +147,21 @@
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
+
+    const w = screenToWorld(mouseX, mouseY);
+    const worldX = w.x;
+    const worldY = w.y;
+
+    let nodeClicked = false;
+
     // Busca de trás para frente para pegar o nó que está "por cima"
     for (let i = nodes.length - 1; i >= 0; i--) {
       const node = nodes[i];
-      if (Math.hypot(node.x - mouseX, node.y - mouseY) <= RENDER.nodeRadius) {
+      if (Math.hypot(node.x - worldX, node.y - worldY) <= RENDER.nodeRadius) {
         selectedNode = node;
+        nodeClicked = true;
         
         // Inicia o timer para "pegar" o nó
         clickTimer = setTimeout(function() {
@@ -166,27 +193,43 @@
         break; // Achou o nó, para a busca
       }
     }
+
+    if (!nodeClicked) {
+      isDraggingBg = true;
+      canvas.style.cursor = "grabbing";
+    }
   });
 
   canvas.addEventListener("mousemove", function(e) {
-    if (selectedNode && selectedNode.isGrabbed) {
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
 
+    if (selectedNode && selectedNode.isGrabbed) {
+      const w = screenToWorld(mouseX, mouseY);
       // Força a posição do nó principal para o ponteiro do mouse
-      selectedNode.x = mouseX;
-      selectedNode.y = mouseY;
+      selectedNode.x = w.x;
+      selectedNode.y = w.y;
 
       // Zera a inércia do nó arrastado para ele não tremer/lutar contra as molas
       selectedNode.vx = 0;
       selectedNode.vy = 0;
-      
-      // A física global (Lei de Hooke) cuidará de puxar a 'draggedNetwork'
+    } else if (isDraggingBg) {
+      const dx = (mouseX - lastMouseX) / scale;
+      const dy = (mouseY - lastMouseY) / scale;
+      offsetX += dx;
+      offsetY += dy;
+      lastMouseX = mouseX;
+      lastMouseY = mouseY;
     }
   });
 
   canvas.addEventListener("mouseup", function(e) {
+    if (isDraggingBg) {
+      isDraggingBg = false;
+      canvas.style.cursor = "default";
+    }
+
     if (selectedNode) {
       clearTimeout(clickTimer);
 
@@ -202,6 +245,32 @@
       draggedNetwork = [];
     }
   });
+
+  // ZOOM in/out
+  canvas.addEventListener("wheel", function(e) {
+    e.preventDefault(); // Previne rolar a página inteira
+    const zoomIntensity = 0.1;
+    
+    // Identifica onde está o mouse no mundo ANTES do zoom
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const w1 = screenToWorld(mouseX, mouseY);
+
+    if (e.deltaY < 0) {
+      scale *= (1 + zoomIntensity); // Zoom in
+    } else {
+      scale /= (1 + zoomIntensity); // Zoom out
+    }
+    scale = Math.min(Math.max(scale, 0.1), 5); // Limites de zoom (0.1x até 5x)
+
+    // Identifica onde aquele mesmo ponto caiu DEPOIS do zoom
+    const w2 = screenToWorld(mouseX, mouseY);
+
+    // Ajusta o offset para manter o ponto focado no mouse
+    offsetX += (w2.x - w1.x);
+    offsetY += (w2.y - w1.y);
+  }, { passive: false });
 
   // ─────────────────────────────────────────────────────────────────
   //  MOTOR DE FÍSICA
@@ -381,7 +450,21 @@
   function render() {
     const nodeMap = buildNodeMap();
 
-    drawBackground();
+    const ratio = window.devicePixelRatio || 1;
+    
+    // Reseta a matriz para poder limpar toda a tela física
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = COLOR.background;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Reaplica transformações de Câmera
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    
+    const cx = logicalWidth / 2;
+    const cy = logicalHeight / 2;
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    ctx.translate(-cx + offsetX, -cy + offsetY);
 
     // Links (camada inferior)
     for (let k = 0; k < links.length; k++) {

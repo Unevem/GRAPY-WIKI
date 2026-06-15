@@ -23,9 +23,10 @@ _PROJECT_ROOT = os.path.normpath(
 # Caminho do vault de notas.
 # Configure VAULT_DIR no .env para apontar para o seu vault do Obsidian.
 # Fallback para WikiVaultExample/ — vault de exemplo incluído no repositório.
-VAULT_DIR = os.path.abspath(
-    os.environ.get("VAULT_DIR", os.path.join(_PROJECT_ROOT, "WikiVaultExample"))
-)
+vault_env = os.environ.get("VAULT_DIR", "").strip()
+if not vault_env:
+    vault_env = os.path.join(_PROJECT_ROOT, "WikiVaultExample")
+VAULT_DIR = os.path.abspath(vault_env)
 
 
 from infrastructure.repositories.vault_repository import get_directory_tree
@@ -193,7 +194,7 @@ def github_webhook():
     Protegido via assinatura HMAC SHA-256.
     """
     signature_header = request.headers.get("X-Hub-Signature-256")
-    payload_body = request.get_data(limit=5 * 1024 * 1024)  # Limite de 5 MB
+    payload_body = request.get_data()  # Lê o payload do webhook
     secret_token = os.environ.get("GITHUB_WEBHOOK_SECRET")
 
     if not GitSyncService.verify_signature(payload_body, secret_token, signature_header):
