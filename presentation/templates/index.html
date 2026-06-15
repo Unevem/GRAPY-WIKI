@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grapy-wiki — Mapa de Conhecimento</title>
+  <meta name="description" content="Mapa de grafo interativo das notas do Obsidian. Fase 1: MVP do motor de física." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}" />
+
+  <style>
+    /* ── Estilos da Sidebar ────────────────────────────────────────── */
+    .sidebar-link {
+      color: #94a3b8;
+      background-color: transparent;
+    }
+    .sidebar-link:hover {
+      color: rgb(var(--brand-orange));
+      background-color: rgba(255,255,255,0.03);
+    }
+    .sidebar-link.active {
+      color: rgb(var(--brand-orange));
+      background-color: rgba(255,255,255,0.05);
+    }
+  </style>
+</head>
+
+<body class="overflow-hidden flex flex-col h-screen" style="background: var(--background); color: var(--foreground);">
+
+  <!-- ═══════════════════════════════════════════
+       Header — painel superior fixo
+  ════════════════════════════════════════════ -->
+  <header id="app-header"
+          class="fixed top-0 left-0 right-0 z-20
+                 flex items-center gap-4 px-6 py-3
+                 backdrop-blur-sm border-b border-white/10"
+          style="background: rgba(10,10,10,0.85); height: 60px;">
+
+    <h1 class="text-lg font-semibold tracking-wide" style="color: var(--color-brand-white);">
+      grapy-wiki
+    </h1>
+
+    <span class="text-xs font-medium px-2 py-1 rounded-full border"
+          style="background: rgba(8,70,121,0.2);
+                 color: rgb(var(--brand-blue));
+                 border-color: rgba(8,70,121,0.4);">
+      Mapa de Conhecimento
+    </span>
+
+  </header>
+
+  <!-- Container Principal -->
+  <div class="flex flex-1 w-full overflow-hidden" style="padding-top: 60px;">
+    
+    <!-- ═══════════════════════════════════════════
+         Sidebar Dinâmica (Menu Lateral)
+    ════════════════════════════════════════════ -->
+    <aside class="w-64 flex-shrink-0 overflow-y-auto border-r transition-colors"
+           style="background: rgba(10,10,10,0.95); border-color: rgba(255,255,255,0.05);">
+      <nav class="p-6 flex flex-col gap-6">
+        
+        {% for categoria, arquivos in file_tree.items() %}
+        <div>
+          <!-- Nome da Pasta (Role) -->
+          <h3 class="text-[0.65rem] font-bold uppercase tracking-widest mb-3"
+              style="color: rgb(var(--brand-blue));">
+            {{ categoria }}
+          </h3>
+          
+          <!-- Arquivos -->
+          <ul class="flex flex-col gap-1">
+            {% for arq in arquivos %}
+            <li>
+              <a href="{{ url_for('web.wiki_page', page_path=arq.path) }}"
+                 class="block px-3 py-1.5 text-sm rounded-md transition-all duration-150 sidebar-link">
+                {{ arq.name }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+
+        {% if not file_tree %}
+        <p class="text-xs italic text-slate-500">Nenhuma pasta encontrada no vault.</p>
+        {% endif %}
+        
+      </nav>
+    </aside>
+
+    <!-- ═══════════════════════════════════════════
+         Área de Renderização do Grafo
+    ════════════════════════════════════════════ -->
+    <main class="flex-1 relative overflow-hidden">
+      
+
+
+      <!-- Canvas -->
+      <canvas id="mapa" class="block w-full h-full"></canvas>
+    </main>
+
+  </div>
+
+  <!-- Motor gráfico do mapa de grafo -->
+  <script src="{{ url_for('static', filename='js/canvas_engine.js') }}"></script>
+
+</body>
+</html>

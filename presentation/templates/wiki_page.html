@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_name }} — grapy-wiki</title>
+  <meta name="description" content="Página da nota {{ page_name }} no grapy-wiki." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}" />
+
+  <style>
+    /* ── Tipografia do conteúdo Markdown ─────────────────────────────
+       Estiliza os elementos HTML gerados pela biblioteca markdown.
+       Escopo .prose garante que não vaze para fora do container.    */
+    .prose h1 { font-size: 2rem;   font-weight: 700; margin-bottom: 1rem;  color: rgb(var(--brand-white)); }
+    .prose h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: .75rem; margin-top: 2rem; color: rgb(var(--brand-white)); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: .4rem; }
+    .prose h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: .5rem;  margin-top: 1.5rem; color: #ededed; }
+    .prose p  { line-height: 1.75; margin-bottom: 1rem; color: #cbd5e1; }
+    .prose a  { color: rgb(var(--brand-blue)); text-decoration: underline; }
+    .prose a:hover { color: rgb(var(--brand-orange)); }
+    .prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 1rem; color: #cbd5e1; }
+    .prose li { margin-bottom: .35rem; line-height: 1.7; }
+    .prose code {
+      font-family: monospace;
+      font-size: .9em;
+      background: rgba(8,70,121,0.25);
+      color: #93c5fd;
+      padding: .15em .4em;
+      border-radius: .3rem;
+    }
+    .prose pre {
+      background: #0d1b2a;
+      border: 1px solid rgba(8,70,121,0.4);
+      border-radius: .5rem;
+      padding: 1rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+    .prose pre code { background: none; padding: 0; color: #e2e8f0; }
+    .prose blockquote {
+      border-left: 3px solid rgb(var(--brand-orange));
+      padding-left: 1rem;
+      color: #94a3b8;
+      font-style: italic;
+      margin: 1rem 0;
+    }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose th, .prose td { border: 1px solid rgba(255,255,255,0.1); padding: .5rem .75rem; text-align: left; }
+    .prose th { background: rgba(8,70,121,0.3); color: #e2e8f0; font-weight: 600; }
+    .prose td { color: #cbd5e1; }
+
+    /* ── Estilos da Sidebar ────────────────────────────────────────── */
+    .sidebar-link {
+      color: #94a3b8;
+      background-color: transparent;
+    }
+    .sidebar-link:hover {
+      color: rgb(var(--brand-orange));
+      background-color: rgba(255,255,255,0.03);
+    }
+    .sidebar-link.active {
+      color: rgb(var(--brand-orange));
+      background-color: rgba(255,255,255,0.05);
+    }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden" style="background: var(--background); color: var(--foreground);">
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header class="fixed top-0 left-0 right-0 z-20 flex items-center gap-4 px-6 py-3
+                 border-b border-white/10 backdrop-blur-sm"
+          style="background: rgba(10,10,10,0.85); height: 60px;">
+
+    <a href="{{ url_for('web.index') }}"
+       class="flex items-center gap-2 text-sm font-medium
+              transition-colors duration-150"
+       style="color: rgb(var(--brand-blue));"
+       onmouseover="this.style.color='rgb(var(--brand-orange))'"
+       onmouseout="this.style.color='rgb(var(--brand-blue))'">
+      ← Voltar para o Mapa
+    </a>
+
+    <span class="text-white/20">|</span>
+
+    <span class="text-sm font-bold" style="color: #94a3b8;">{{ page_name }}</span>
+
+  </header>
+
+  <!-- Container Principal -->
+  <div class="flex flex-1 w-full overflow-hidden" style="padding-top: 60px;">
+    
+    <!-- ═══════════════════════════════════════════
+         Sidebar Dinâmica (Menu Lateral)
+    ════════════════════════════════════════════ -->
+    <aside class="w-64 flex-shrink-0 overflow-y-auto border-r transition-colors"
+           style="background: rgba(10,10,10,0.95); border-color: rgba(255,255,255,0.05);">
+      <nav class="p-6 flex flex-col gap-6">
+        
+        {% for categoria, arquivos in file_tree.items() %}
+        <div>
+          <h3 class="text-[0.65rem] font-bold uppercase tracking-widest mb-3"
+              style="color: rgb(var(--brand-blue));">
+            {{ categoria }}
+          </h3>
+          
+          <ul class="flex flex-col gap-1">
+            {% for arq in arquivos %}
+            <li>
+              <a href="{{ url_for('web.wiki_page', page_path=arq.path) }}"
+                 class="block px-3 py-1.5 text-sm rounded-md transition-all duration-150 sidebar-link {% if arq.name == page_name %}active{% endif %}">
+                {{ arq.name }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+
+      </nav>
+    </aside>
+
+    <!-- ── Conteúdo principal ─────────────────────────────────────── -->
+    <main class="flex-1 overflow-y-auto relative">
+      <div class="max-w-3xl mx-auto px-10 py-12">
+        <article class="prose">
+          {{ content | safe }}
+        </article>
+      </div>
+    </main>
+    
+  </div>
+
+</body>
+</html>

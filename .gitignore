@@ -1,0 +1,71 @@
+# ──────────────────────────────────────────
+# Python
+# ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Ambiente virtual
+venv/
+.venv/
+env/
+.env/
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.*.local
+
+# ──────────────────────────────────────────
+# Flask / Aplicação
+# ──────────────────────────────────────────
+instance/
+.flaskenv
+flask_session/
+
+# Cache do grafo (gerado em runtime pelo watcher)
+cache/mapa_cache.json
+
+# O vault pessoal de notas (evita commitar dados sensíveis por engano)
+# O repositório já inclui o WikiVaultExample/ para referência
+wiki/
+
+# ──────────────────────────────────────────
+# Tailwind CLI (binário standalone)
+# ──────────────────────────────────────────
+# Manter o binário fora do repositório; cada dev baixa o seu
+tailwindcss
+tailwindcss.exe
+
+# CSS compilado (gerado em build)
+presentation/static/css/output.css
+
+# ──────────────────────────────────────────
+# Editores e IDEs
+# ──────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ──────────────────────────────────────────
+# Sistema Operacional
+# ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ──────────────────────────────────────────
+# Testes e Cobertura
+# ──────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
