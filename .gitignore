@@ -69,3 +69,9 @@ desktop.ini
 .pytest_cache/
 .coverage
 htmlcov/
+
+# ──────────────────────────────────────────
+# Obsidian
+# ──────────────────────────────────────────
+
+.obsidian
